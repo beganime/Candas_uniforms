@@ -1,0 +1,29 @@
+services:
+  web:
+    build: .
+    container_name: cadas_uniforms_web
+    env_file:
+      - .env
+    volumes:
+      - sqlite_data:/app/data
+      - media_data:/app/media
+      - static_data:/app/staticfiles
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: cadas_uniforms_nginx
+    depends_on:
+      - web
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - media_data:/app/media:ro
+      - static_data:/app/staticfiles:ro
+    restart: unless-stopped
+
+volumes:
+  sqlite_data:
+  media_data:
+  static_data:

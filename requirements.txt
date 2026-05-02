@@ -1,0 +1,7 @@
+Django>=5.1,<5.2
+django-unfold>=0.50,<1.0
+Pillow>=11.1,<12
+qrcode[pil]>=8.0,<9
+gunicorn>=23.0,<24
+whitenoise>=6.9,<7
+python-dotenv>=1.0,<2

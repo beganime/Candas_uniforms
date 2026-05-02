@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% block title %}{{ product.title }} — {{ site_settings.site_name }}{% endblock %}
+
+{% block content %}
+<section class="section product-detail-section">
+    <div class="container product-detail-grid">
+        <div class="product-gallery glass-panel">
+            {% if product.main_image %}
+                <img class="main-product-img" src="{{ product.main_image.url }}" alt="{{ product.title }}" loading="eager" decoding="async">
+            {% else %}
+                <div class="product-placeholder">{{ product.title }}</div>
+            {% endif %}
+            {% if product.images.all %}
+                <div class="thumbs">
+                    {% for item in product.images.all %}
+                        <img src="{{ item.image.url }}" alt="{{ item.alt|default:product.title }}" loading="lazy" decoding="async" data-thumb>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="product-info glass-panel">
+            {% if product.category %}<a class="eyebrow" href="{{ product.category.get_absolute_url }}">{{ product.category.title }}</a>{% endif %}
+            <h1>{{ product.title }}</h1>
+            {% if product.short_description %}<p class="lead">{{ product.short_description }}</p>{% endif %}
+            <div class="price-line">
+                {% if product.price %}<strong>{{ product.price }} {{ product.currency }}</strong>{% else %}<strong>Цена по запросу</strong>{% endif %}
+                {% if product.old_price %}<span>{{ product.old_price }} {{ product.currency }}</span>{% endif %}
+            </div>
+            <div class="product-actions">
+                <a class="btn primary" href="#order">Оставить заявку</a>
+                {% if site_settings.whatsapp %}
+                    <a class="btn ghost" href="https://wa.me/{{ site_settings.whatsapp|cut:'+'|cut:' '|cut:'-'|cut:'('|cut:')' }}?text=Здравствуйте! Интересует товар: {{ product.title|urlencode }}" target="_blank" rel="noopener">Написать в WhatsApp</a>
+                {% endif %}
+            </div>
+            <div class="specs">
+                {% if product.sku %}<div><span>Артикул</span><strong>{{ product.sku }}</strong></div>{% endif %}
+                {% if product.sizes %}<div><span>Размеры</span><strong>{{ product.sizes }}</strong></div>{% endif %}
+                {% if product.colors %}<div><span>Цвета</span><strong>{{ product.colors }}</strong></div>{% endif %}
+                {% if product.material %}<div><span>Материал</span><strong>{{ product.material }}</strong></div>{% endif %}
+                {% if product.care %}<div><span>Уход</span><strong>{{ product.care }}</strong></div>{% endif %}
+            </div>
+            {% if product.qr_code %}
+                <div class="qr-box">
+                    <img src="{{ product.qr_code.url }}" alt="QR-код {{ product.title }}" loading="lazy" decoding="async">
+                    <p>QR-код товара</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<section class="section compact">
+    <div class="container product-content-grid">
+        <div class="text-card glass-panel">
+            <h2>Описание</h2>
+            {% if product.description %}{{ product.description|linebreaks }}{% else %}<p>Описание можно добавить в админке.</p>{% endif %}
+        </div>
+        <form class="request-form glass-panel" id="order" action="{% url 'catalog:create_request' %}" method="post">
+            {% csrf_token %}
+            <input type="hidden" name="product_id" value="{{ product.id }}">
+            <h2>Заявка на товар</h2>
+            <p class="muted">Заявка сохранится в админ-панели вместе с товаром, IP-адресом и страницей-источником.</p>
+            {{ form.name }}
+            {{ form.phone }}
+            {{ form.email }}
+            {{ form.address }}
+            {{ form.message }}
+            <button class="btn primary" type="submit">Отправить заявку</button>
+        </form>
+    </div>
+</section>
+
+{% if related_products %}
+<section class="section compact">
+    <div class="container section-head">
+        <span class="eyebrow">Похожие товары</span>
+        <h2>Может подойти</h2>
+    </div>
+    <div class="container product-grid">
+        {% for product in related_products %}
+            {% include 'catalog/partials/product_card.html' with product=product %}
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+{% endblock %}

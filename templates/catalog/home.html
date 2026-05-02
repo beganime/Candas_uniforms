@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% block title %}{{ site_settings.site_name }} — каталог медицинской одежды{% endblock %}
+
+{% block content %}
+<section class="hero section">
+    <div class="container hero-grid">
+        <div class="hero-content glass-panel">
+            <span class="eyebrow">{{ site_settings.hero_badge }}</span>
+            <h1>{% if page %}{{ page.title }}{% else %}Медицинская одежда для команды, которая выглядит уверенно{% endif %}</h1>
+            <p>{% if page and page.subtitle %}{{ page.subtitle }}{% else %}Каталог формы, халатов, костюмов и аксессуаров для клиник, салонов красоты, лабораторий и частных специалистов.{% endif %}</p>
+            <div class="hero-actions">
+                <a class="btn primary" href="{% url 'catalog:catalog' %}">Смотреть каталог</a>
+                <a class="btn ghost" href="#request">Оставить заявку</a>
+            </div>
+            <div class="stats">
+                <div><strong>QR</strong><span>код у каждого товара</span></div>
+                <div><strong>Admin</strong><span>товары через панель</span></div>
+                <div><strong>Mobile</strong><span>адаптивный дизайн</span></div>
+            </div>
+        </div>
+        <div class="hero-image glass-panel">
+            {% if page and page.hero_image %}
+                <img src="{{ page.hero_image.url }}" alt="{{ page.title }}" loading="lazy" decoding="async">
+            {% else %}
+                <div class="hero-placeholder">
+                    <span>Cadas</span>
+                    <strong>Uniforms</strong>
+                    <em>medical wear catalog</em>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+{% if page and page.body %}
+<section class="section compact">
+    <div class="container text-card glass-panel">
+        {{ page.body|linebreaks }}
+    </div>
+</section>
+{% endif %}
+
+<section class="section compact">
+    <div class="container section-head">
+        <span class="eyebrow">Категории</span>
+        <h2>Выберите направление</h2>
+    </div>
+    <div class="container category-grid">
+        {% for category in categories %}
+            <a class="category-card glass-panel" href="{{ category.get_absolute_url }}">
+                {% if category.image %}
+                    <img src="{{ category.image.url }}" alt="{{ category.title }}" loading="lazy" decoding="async">
+                {% endif %}
+                <h3>{{ category.title }}</h3>
+                <p>{{ category.description|default:'Перейти к товарам этой категории'|truncatechars:90 }}</p>
+            </a>
+        {% empty %}
+            <div class="empty-state glass-panel">Добавьте категории через админку.</div>
+        {% endfor %}
+    </div>
+</section>
+
+<section class="section compact">
+    <div class="container section-head split">
+        <div>
+            <span class="eyebrow">Популярное</span>
+            <h2>Товары на главной</h2>
+        </div>
+        <a class="link-more" href="{% url 'catalog:catalog' %}">Весь каталог →</a>
+    </div>
+    <div class="container product-grid">
+        {% for product in featured_products %}
+            {% include 'catalog/partials/product_card.html' with product=product %}
+        {% empty %}
+            <div class="empty-state glass-panel">Отметьте товары как “Показывать на главной” в админке.</div>
+        {% endfor %}
+    </div>
+</section>
+
+<section class="section" id="request">
+    <div class="container request-grid">
+        <div class="request-info glass-panel">
+            <span class="eyebrow">Связаться</span>
+            <h2>Нужна форма для клиники или салона?</h2>
+            <p>Оставьте контакты. Заявка попадёт в админ-панель, где её увидит администратор.</p>
+            {% if site_settings.address %}<p class="muted">{{ site_settings.address }}</p>{% endif %}
+        </div>
+        <form class="request-form glass-panel" action="{% url 'catalog:create_request' %}" method="post">
+            {% csrf_token %}
+            {{ form.name }}
+            {{ form.phone }}
+            {{ form.email }}
+            {{ form.address }}
+            {{ form.message }}
+            <button class="btn primary" type="submit">Отправить заявку</button>
+        </form>
+    </div>
+</section>
+{% endblock %}

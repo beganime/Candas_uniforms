@@ -1,0 +1,18 @@
+<a class="product-card glass-panel" href="{{ product.get_absolute_url }}">
+    <div class="product-image-wrap">
+        {% if product.main_image %}
+            <img src="{{ product.main_image.url }}" alt="{{ product.title }}" loading="lazy" decoding="async">
+        {% else %}
+            <div class="product-placeholder">{{ product.title }}</div>
+        {% endif %}
+        {% if product.category %}<span class="product-badge">{{ product.category.title }}</span>{% endif %}
+    </div>
+    <div class="product-card-body">
+        <h3>{{ product.title }}</h3>
+        {% if product.short_description %}<p>{{ product.short_description|truncatechars:100 }}</p>{% endif %}
+        <div class="product-card-footer">
+            {% if product.price %}<strong>{{ product.price }} {{ product.currency }}</strong>{% else %}<strong>Цена по запросу</strong>{% endif %}
+            <span>Подробнее →</span>
+        </div>
+    </div>
+</a>

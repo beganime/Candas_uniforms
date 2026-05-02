@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block title %}О компании — {{ site_settings.site_name }}{% endblock %}
+
+{% block content %}
+<section class="section page-hero">
+    <div class="container hero-grid">
+        <div class="hero-content glass-panel">
+            <span class="eyebrow">О компании</span>
+            <h1>{% if page %}{{ page.title }}{% else %}Cadas Uniforms{% endif %}</h1>
+            <p>{% if page and page.subtitle %}{{ page.subtitle }}{% else %}Каталог медицинской одежды с удобным управлением через админку.{% endif %}</p>
+        </div>
+        <div class="hero-image glass-panel small">
+            {% if page and page.hero_image %}
+                <img src="{{ page.hero_image.url }}" alt="{{ page.title }}" loading="lazy" decoding="async">
+            {% else %}
+                <div class="hero-placeholder"><strong>Cadas Uniforms</strong><em>about company</em></div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<section class="section compact">
+    <div class="container about-grid">
+        <div class="text-card glass-panel">
+            {% if page and page.body %}
+                {{ page.body|linebreaks }}
+            {% else %}
+                <h2>Красиво, удобно, понятно</h2>
+                <p>Эту страницу можно полностью редактировать через админку: текст, изображения, телефон, email и адрес.</p>
+                <p>Добавьте описание компании, условия заказа, преимущества, адрес магазина или шоурума.</p>
+            {% endif %}
+        </div>
+        <div class="contact-card glass-panel">
+            <h3>Контакты</h3>
+            {% if page.phone or site_settings.phone %}<p><strong>Телефон:</strong> {{ page.phone|default:site_settings.phone }}</p>{% endif %}
+            {% if page.email or site_settings.email %}<p><strong>Email:</strong> {{ page.email|default:site_settings.email }}</p>{% endif %}
+            {% if page.address or site_settings.address %}<p><strong>Адрес:</strong> {{ page.address|default:site_settings.address }}</p>{% endif %}
+            <a class="btn primary" href="{% url 'catalog:catalog' %}">Перейти в каталог</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block title %}Заявка отправлена — {{ site_settings.site_name }}{% endblock %}
+
+{% block content %}
+<section class="section success-section">
+    <div class="container success-card glass-panel">
+        <span class="success-icon">✓</span>
+        <h1>Заявка отправлена</h1>
+        <p>Администратор увидит её в панели управления. Ответ с сайта не отправляется — это просто заявка для обработки.</p>
+        <div class="hero-actions center">
+            <a class="btn primary" href="{% url 'catalog:catalog' %}">Вернуться в каталог</a>
+            <a class="btn ghost" href="{% url 'catalog:home' %}">На главную</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

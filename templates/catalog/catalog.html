@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block title %}Каталог — {{ site_settings.site_name }}{% endblock %}
+
+{% block content %}
+<section class="section page-hero catalog-top">
+    <div class="container glass-panel catalog-heading">
+        <span class="eyebrow">Каталог</span>
+        <h1>Медицинская одежда</h1>
+        <p>Выберите категорию, найдите товар и оставьте заявку прямо со страницы товара.</p>
+        <form class="catalog-search" action="{% url 'catalog:catalog' %}" method="get">
+            {% if selected_category %}<input type="hidden" name="category" value="{{ selected_category }}">{% endif %}
+            <input name="q" value="{{ query }}" placeholder="Поиск по названию, артикулу, цвету, размеру...">
+            <button class="btn primary" type="submit">Найти</button>
+        </form>
+    </div>
+</section>
+
+<section class="section compact">
+    <div class="container filters">
+        <a class="filter-pill {% if not selected_category %}active{% endif %}" href="{% url 'catalog:catalog' %}">Все</a>
+        {% for category in categories %}
+            <a class="filter-pill {% if selected_category == category.slug %}active{% endif %}" href="?category={{ category.slug }}{% if query %}&q={{ query }}{% endif %}">{{ category.title }}</a>
+        {% endfor %}
+    </div>
+
+    <div class="container product-grid catalog-grid">
+        {% for product in page_obj %}
+            {% include 'catalog/partials/product_card.html' with product=product %}
+        {% empty %}
+            <div class="empty-state glass-panel">Товары не найдены. Добавьте товары через админку или измените фильтр.</div>
+        {% endfor %}
+    </div>
+
+    {% if page_obj.has_other_pages %}
+        <div class="container pagination">
+            {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if query %}&q={{ query }}{% endif %}">← Назад</a>{% endif %}
+            <span>Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}</span>
+            {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if query %}&q={{ query }}{% endif %}">Вперёд →</a>{% endif %}
+        </div>
+    {% endif %}
+</section>
+{% endblock %}
