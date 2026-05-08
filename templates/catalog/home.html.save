@@ -1,91 +1,331 @@
 {% extends 'base.html' %}
-{% block title %}{{ site_settings.site_name }} — каталог медицинской одежды{% endblock %}
+{% block title %}{{ site_settings.site_name }} — медицинская одежда и униформа{% endblock %}
 
 {% block content %}
 <section class="hero section">
-    <div class="container hero-grid">
-        <div class="hero-content glass-panel">
-            <span class="eyebrow">{{ site_settings.hero_badge }}</span>
-            <h1>{% if page %}{{ page.title }}{% else %}Медицинская одежда для команды, которая выглядит уверенно{% endif %}</h1>
-            <p>{% if page and page.subtitle %}{{ page.subtitle }}{% else %}Каталог формы, халатов, костюмов и аксессуаров для клиник, салонов красоты, лабораторий и частных специалистов.{% endif %}</p>
-            <div class="hero-actions">
-                <a class="btn primary" href="{% url 'catalog:catalog' %}">Смотреть каталог</a>
-                <a class="btn ghost" href="#request">Оставить заявку</a>
+    <div class="container hero-shell">
+        <div class="hero-slider" data-hero-slider>
+            <div class="hero-slider-track" data-hero-track>
+                {% for banner in banners %}
+                    <div class="hero-slide {% if forloop.first %}active{% endif %}">
+                        <div class="hero-copy">
+                            <span class="eyebrow">
+                                {% if banner.badge %}
+                                    {{ banner.badge }}
+                                {% else %}
+                                    {{ site_settings.hero_badge }}
+                                {% endif %}
+                            </span>
+
+                            <h1>{{ banner.title }}</h1>
+
+                            {% if banner.subtitle %}
+                                <p>{{ banner.subtitle }}</p>
+                            {% endif %}
+
+                            <div class="hero-actions">
+                                <a class="btn primary" href="{{ banner.button_url }}">
+                                    {{ banner.button_text }}
+                                </a>
+
+                                {% if banner.second_button_text and banner.second_button_url %}
+                                    <a class="btn ghost" href="{{ banner.second_button_url }}">
+                                        {{ banner.second_button_text }}
+                                    </a>
+                                {% else %}
+                                    <a class="btn ghost" href="#request">Оставить заявку</a>
+                                {% endif %}
+                            </div>
+
+                            <div class="hero-stats">
+                                {% for stat in stats %}
+                                    <div>
+                                        <strong>{{ stat.value }}</strong>
+                                        <span>{{ stat.label }}</span>
+                                    </div>
+                                {% empty %}
+                                    <div>
+                                        <strong>QR</strong>
+                                        <span>код у каждого товара</span>
+                                    </div>
+                                    <div>
+                                        <strong>5000+</strong>
+                                        <span>довольных клиентов</span>
+                                    </div>
+                                    <div>
+                                        <strong>24/7</strong>
+                                        <span>заявки из каталога</span>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="hero-media">
+                            {% if banner.image %}
+                                <img src="{{ banner.image.url }}" alt="{{ banner.title }}" loading="{% if forloop.first %}eager{% else %}lazy{% endif %}" decoding="async">
+                            {% else %}
+                                <div class="hero-placeholder">
+                                    <span>Cadas</span>
+                                    <strong>Uniforms</strong>
+                                    <em>medical wear catalog</em>
+                                </div>
+                            {% endif %}
+
+                            <div class="floating-card">
+                                <strong>Новая коллекция</strong>
+                                <span>Костюмы, халаты, брюки и куртки</span>
+                            </div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="hero-slide active">
+                        <div class="hero-copy">
+                            <span class="eyebrow">{{ site_settings.hero_badge }}</span>
+
+                            <h1>
+                                {% if page %}
+                                    {{ page.title }}
+                                {% else %}
+                                    Медицинская одежда, которая выглядит дорого и служит долго
+                                {% endif %}
+                            </h1>
+
+                            <p>
+                                {% if page and page.subtitle %}
+                                    {{ page.subtitle }}
+                                {% else %}
+                                    Каталог костюмов, халатов, хирургической формы и аксессуаров для клиник, салонов, лабораторий и частных специалистов.
+                                {% endif %}
+                            </p>
+
+                            <div class="hero-actions">
+                                <a class="btn primary" href="{% url 'catalog:catalog' %}">Смотреть каталог</a>
+                                <a class="btn ghost" href="#request">Оставить заявку</a>
+                            </div>
+
+                            <div class="hero-stats">
+                                {% for stat in stats %}
+                                    <div>
+                                        <strong>{{ stat.value }}</strong>
+                                        <span>{{ stat.label }}</span>
+                                    </div>
+                                {% empty %}
+                                    <div>
+                                        <strong>QR</strong>
+                                        <span>код у каждого товара</span>
+                                    </div>
+                                    <div>
+                                        <strong>5000+</strong>
+                                        <span>довольных клиентов</span>
+                                    </div>
+                                    <div>
+                                        <strong>24/7</strong>
+                                        <span>заявки из каталога</span>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="hero-media">
+                            {% if page and page.hero_image %}
+                                <img src="{{ page.hero_image.url }}" alt="{{ page.title }}" loading="eager" decoding="async">
+                            {% else %}
+                                <div class="hero-placeholder">
+                                    <span>Cadas</span>
+                                    <strong>Uniforms</strong>
+                                    <em>medical wear catalog</em>
+                                </div>
+                            {% endif %}
+
+                            <div class="floating-card">
+                                <strong>Новая коллекция</strong>
+                                <span>Костюмы, халаты, брюки и куртки</span>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
             </div>
-            <div class="stats">
-                <div><strong>QR</strong><span>код у каждого товара</span></div>
-                <div><strong>Более 5000</strong><spanдоволбный</span></div>
-                <div><strong>Mobile</strong><span>адаптивный дизайн</span></div>
-            </div>
-        </div>
-        <div class="hero-image glass-panel">
-            {% if page and page.hero_image %}
-                <img src="{{ page.hero_image.url }}" alt="{{ page.title }}" loading="lazy" decoding="async">
-            {% else %}
-                <div class="hero-placeholder">
-                    <span>Cadas</span>
-                    <strong>Uniforms</strong>
-                    <em>medical wear catalog</em>
+
+            {% if banners|length > 1 %}
+                <button class="hero-arrow hero-arrow-prev" type="button" aria-label="Предыдущий баннер" data-hero-prev>
+                    ‹
+                </button>
+                <button class="hero-arrow hero-arrow-next" type="button" aria-label="Следующий баннер" data-hero-next>
+                    ›
+                </button>
+
+                <div class="hero-dots" data-hero-dots>
+                    {% for banner in banners %}
+                        <button class="{% if forloop.first %}active{% endif %}" type="button" aria-label="Баннер {{ forloop.counter }}" data-hero-dot="{{ forloop.counter0 }}"></button>
+                    {% endfor %}
                 </div>
             {% endif %}
+        </div>
+
+        <div class="hero-side">
+            {% for promo in promo_blocks|slice:":2" %}
+                <a class="mini-promo" href="{{ promo.link_url }}">
+                    {% if promo.image %}
+                        <img src="{{ promo.image.url }}" alt="{{ promo.title }}" loading="lazy" decoding="async">
+                    {% endif %}
+                    <span>{{ promo.accent_text|default:'SALE' }}</span>
+                    <strong>{{ promo.title }}</strong>
+                    {% if promo.subtitle %}
+                        <small>{{ promo.subtitle }}</small>
+                    {% endif %}
+                </a>
+            {% empty %}
+                <a class="mini-promo gradient" href="{% url 'catalog:catalog' %}">
+                    <span>50%</span>
+                    <strong>Действующие акции</strong>
+                    <small>Отметьте товары со старой ценой</small>
+                </a>
+                <a class="mini-promo light" href="#request">
+                    <span>NEW</span>
+                    <strong>Форма под заказ</strong>
+                    <small>Оставьте заявку через сайт</small>
+                </a>
+            {% endfor %}
         </div>
     </div>
 </section>
 
-{% if page and page.body %}
+{% if promo_blocks %}
 <section class="section compact">
-    <div class="container text-card glass-panel">
-        {{ page.body|linebreaks }}
+    <div class="container section-head split">
+        <div>
+            <span class="eyebrow">Акции</span>
+            <h2>Действующие предложения</h2>
+        </div>
+        <a class="link-more" href="{% url 'catalog:catalog' %}">Весь каталог →</a>
+    </div>
+
+    <div class="container promo-grid">
+        {% for promo in promo_blocks %}
+            <a class="promo-card" href="{{ promo.link_url }}">
+                {% if promo.image %}
+                    <img src="{{ promo.image.url }}" alt="{{ promo.title }}" loading="lazy" decoding="async">
+                {% endif %}
+                <div>
+                    {% if promo.accent_text %}
+                        <span>{{ promo.accent_text }}</span>
+                    {% endif %}
+                    <h3>{{ promo.title }}</h3>
+                    {% if promo.subtitle %}
+                        <p>{{ promo.subtitle }}</p>
+                    {% endif %}
+                    <strong>{{ promo.link_text }} →</strong>
+                </div>
+            </a>
+        {% endfor %}
     </div>
 </section>
 {% endif %}
 
 <section class="section compact">
-    <div class="container section-head">
-        <span class="eyebrow">Категории</span>
-        <h2>Выберите направление</h2>
+    <div class="container section-head split">
+        <div>
+            <span class="eyebrow">Категории</span>
+            <h2>Выберите направление</h2>
+        </div>
+        <a class="link-more" href="{% url 'catalog:catalog' %}">Все категории →</a>
     </div>
+
     <div class="container category-grid">
         {% for category in categories %}
-            <a class="category-card glass-panel" href="{{ category.get_absolute_url }}">
+            <a class="category-card" href="{{ category.get_absolute_url }}">
                 {% if category.image %}
                     <img src="{{ category.image.url }}" alt="{{ category.title }}" loading="lazy" decoding="async">
                 {% endif %}
-                <h3>{{ category.title }}</h3>
-                <p>{{ category.description|default:'Перейти к товарам этой категории'|truncatechars:90 }}</p>
+                <div>
+                    <h3>{{ category.title }}</h3>
+                    <p>{{ category.description|default:'Перейти к товарам этой категории'|truncatechars:96 }}</p>
+                </div>
             </a>
         {% empty %}
-            <div class="empty-state glass-panel">Добавьте категории через админку.</div>
+            <div class="empty-state">Добавьте категории через админку.</div>
         {% endfor %}
     </div>
 </section>
 
+{% if home_sections %}
+    {% for item in home_sections %}
+        <section class="section compact">
+            <div class="container section-head split">
+                <div>
+                    {% if item.section.badge %}
+                        <span class="eyebrow">{{ item.section.badge }}</span>
+                    {% endif %}
+                    <h2>{{ item.section.title }}</h2>
+                    {% if item.section.subtitle %}
+                        <p>{{ item.section.subtitle }}</p>
+                    {% endif %}
+                </div>
+                <a class="link-more" href="{% url 'catalog:catalog' %}">Все товары →</a>
+            </div>
+
+            <div class="container product-grid">
+                {% for product in item.products %}
+                    {% include 'catalog/partials/product_card.html' with product=product %}
+                {% endfor %}
+            </div>
+        </section>
+    {% endfor %}
+{% else %}
+    <section class="section compact">
+        <div class="container section-head split">
+            <div>
+                <span class="eyebrow">Популярное</span>
+                <h2>Товары на главной</h2>
+            </div>
+            <a class="link-more" href="{% url 'catalog:catalog' %}">Весь каталог →</a>
+        </div>
+
+        <div class="container product-grid">
+            {% for product in featured_products %}
+                {% include 'catalog/partials/product_card.html' with product=product %}
+            {% empty %}
+                <div class="empty-state">Создайте секцию товаров на главной или отметьте товары как “Показывать на главной”.</div>
+            {% endfor %}
+        </div>
+    </section>
+{% endif %}
+
+{% if page and page.body %}
 <section class="section compact">
-    <div class="container section-head split">
+    <div class="container info-band">
         <div>
-            <span class="eyebrow">Популярное</span>
-            <h2>Товары на главной</h2>
+            <span class="eyebrow">О магазине</span>
+            {{ page.body|linebreaks }}
         </div>
-        <a class="link-more" href="{% url 'catalog:catalog' %}">Весь каталог →</a>
-    </div>
-    <div class="container product-grid">
-        {% for product in featured_products %}
-            {% include 'catalog/partials/product_card.html' with product=product %}
-        {% empty %}
-            <div class="empty-state glass-panel">Отметьте товары как “Показывать на главной” в админке.</div>
-        {% endfor %}
+        {% if page.second_image %}
+            <img src="{{ page.second_image.url }}" alt="{{ page.title }}" loading="lazy" decoding="async">
+        {% endif %}
     </div>
 </section>
+{% endif %}
 
-<section class="section" id="request">
+<section class="section request-section" id="request">
     <div class="container request-grid">
-        <div class="request-info glass-panel">
+        <div class="request-info">
             <span class="eyebrow">Связаться</span>
-            <h2>Нужна форма для клиники или салона?</h2>
-            <p>Оставьте контакты. Заявка попадёт в админ-панель, где её увидит администратор.</p>
-            {% if site_settings.address %}<p class="muted">{{ site_settings.address }}</p>{% endif %}
+            <h2>Нужна форма для клиники, салона или команды?</h2>
+            <p>Оставьте контакты. Заявка попадёт в админ-панель вместе со страницей-источником, чтобы менеджер быстро понял, откуда пришёл клиент.</p>
+
+            <div class="contact-lines">
+                {% if site_settings.phone %}
+                    <a href="tel:{{ site_settings.phone }}">{{ site_settings.phone }}</a>
+                {% endif %}
+                {% if site_settings.whatsapp %}
+                    <a href="https://wa.me/{{ site_settings.whatsapp|cut:'+'|cut:' '|cut:'-'|cut:'('|cut:')' }}" target="_blank" rel="noopener">Написать в WhatsApp</a>
+                {% endif %}
+                {% if site_settings.address %}
+                    <span>{{ site_settings.address }}</span>
+                {% endif %}
+            </div>
         </div>
-        <form class="request-form glass-panel" action="{% url 'catalog:create_request' %}" method="post">
+
+        <form class="request-form" action="{% url 'catalog:create_request' %}" method="post">
             {% csrf_token %}
             {{ form.name }}
             {{ form.phone }}

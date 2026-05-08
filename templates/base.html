@@ -5,15 +5,26 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}{{ site_settings.site_name }}{% endblock %}</title>
-    <meta name="description" content="Каталог медицинской одежды Cadas Uniforms">
+    <meta name="description" content="Каталог медицинской одежды {{ site_settings.site_name }}">
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 </head>
 <body>
     <header class="site-header">
-        <div class="container header-inner glass-panel">
+        <div class="top-strip">
+            <div class="container top-strip-inner">
+                <span>{{ site_settings.hero_badge }}</span>
+                <div class="top-contacts">
+                    {% if site_settings.phone %}<a href="tel:{{ site_settings.phone }}">{{ site_settings.phone }}</a>{% endif %}
+                    {% if site_settings.email %}<a href="mailto:{{ site_settings.email }}">{{ site_settings.email }}</a>{% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="container header-inner">
             <a class="brand" href="{% url 'catalog:home' %}" aria-label="На главную">
                 {% if site_settings.logo %}
                     <img src="{{ site_settings.logo.url }}" alt="{{ site_settings.site_name }}" loading="lazy" decoding="async">
+                {% else %}
+                    <span class="brand-mark">C</span>
                 {% endif %}
                 <span>{{ site_settings.site_name }}</span>
             </a>
@@ -24,9 +35,13 @@
 
             <nav class="main-nav" data-nav>
                 <a href="{% url 'catalog:home' %}">Главная</a>
-                <a href="{% url 'catalog:about' %}">О компании</a>
                 <a href="{% url 'catalog:catalog' %}">Каталог</a>
-                {% if site_settings.phone %}<a class="nav-phone" href="tel:{{ site_settings.phone }}">{{ site_settings.phone }}</a>{% endif %}
+                <a href="{% url 'catalog:about' %}">О компании</a>
+                {% if site_settings.whatsapp %}
+                    <a class="nav-cta" href="https://wa.me/{{ site_settings.whatsapp|cut:'+'|cut:' '|cut:'-'|cut:'('|cut:')' }}" target="_blank" rel="noopener">WhatsApp</a>
+                {% elif site_settings.phone %}
+                    <a class="nav-cta" href="tel:{{ site_settings.phone }}">Позвонить</a>
+                {% endif %}
             </nav>
         </div>
     </header>
@@ -44,10 +59,20 @@
     </main>
 
     <footer class="footer">
-        <div class="container footer-grid glass-panel">
+        <div class="container footer-grid">
             <div>
                 <h3>{{ site_settings.site_name }}</h3>
                 <p>{{ site_settings.hero_badge }}</p>
+                <div class="footer-socials">
+                    {% if site_settings.instagram %}<a href="{{ site_settings.instagram }}" target="_blank" rel="noopener">Instagram</a>{% endif %}
+                    {% if site_settings.telegram %}<a href="{{ site_settings.telegram }}" target="_blank" rel="noopener">Telegram</a>{% endif %}
+                </div>
+            </div>
+            <div>
+                <h4>Каталог</h4>
+                <p><a href="{% url 'catalog:catalog' %}">Все товары</a></p>
+                <p><a href="{% url 'catalog:about' %}">О компании</a></p>
+                <p><a href="{% url 'catalog:home' %}#request">Оставить заявку</a></p>
             </div>
             <div>
                 <h4>Контакты</h4>
@@ -55,11 +80,6 @@
                 {% if site_settings.second_phone %}<p><a href="tel:{{ site_settings.second_phone }}">{{ site_settings.second_phone }}</a></p>{% endif %}
                 {% if site_settings.email %}<p><a href="mailto:{{ site_settings.email }}">{{ site_settings.email }}</a></p>{% endif %}
                 {% if site_settings.address %}<p>{{ site_settings.address }}</p>{% endif %}
-            </div>
-            <div>
-                <h4>Разделы</h4>
-                <p><a href="{% url 'catalog:catalog' %}">Каталог</a></p>
-                <p><a href="{% url 'catalog:about' %}">О компании</a></p>
             </div>
         </div>
     </footer>

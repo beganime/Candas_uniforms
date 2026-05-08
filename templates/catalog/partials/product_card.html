@@ -1,18 +1,70 @@
-<a class="product-card glass-panel" href="{{ product.get_absolute_url }}">
-    <div class="product-image-wrap">
-        {% if product.main_image %}
-            <img src="{{ product.main_image.url }}" alt="{{ product.title }}" loading="lazy" decoding="async">
-        {% else %}
-            <div class="product-placeholder">{{ product.title }}</div>
-        {% endif %}
-        {% if product.category %}<span class="product-badge">{{ product.category.title }}</span>{% endif %}
-    </div>
+<article class="product-card">
+    <a class="product-image-link" href="{{ product.get_absolute_url }}" aria-label="{{ product.title }}">
+        <div class="product-image-wrap">
+            {% if product.main_image %}
+                <img src="{{ product.main_image.url }}" alt="{{ product.title }}" loading="lazy" decoding="async">
+            {% else %}
+                <div class="product-placeholder">{{ product.title }}</div>
+            {% endif %}
+
+            {% if product.card_badge %}
+                <span class="product-badge">{{ product.card_badge }}</span>
+            {% endif %}
+
+            {% if product.discount_percent %}
+                <span class="discount-badge">-{{ product.discount_percent }}%</span>
+            {% elif product.old_price and product.price %}
+                <span class="discount-badge">SALE</span>
+            {% endif %}
+        </div>
+    </a>
+
     <div class="product-card-body">
-        <h3>{{ product.title }}</h3>
-        {% if product.short_description %}<p>{{ product.short_description|truncatechars:100 }}</p>{% endif %}
+        <div class="product-card-top">
+            {% if product.category %}
+                <a class="product-category" href="{{ product.category.get_absolute_url }}">
+                    {{ product.category.title }}
+                </a>
+            {% endif %}
+
+            {% if product.sku %}
+                <span class="product-sku">Арт. {{ product.sku }}</span>
+            {% endif %}
+        </div>
+
+        <a class="product-title-link" href="{{ product.get_absolute_url }}">
+            <h3>{{ product.title }}</h3>
+        </a>
+
+        {% if product.short_description %}
+            <p>{{ product.short_description|truncatechars:88 }}</p>
+        {% endif %}
+
+        <div class="product-meta-row">
+            {% if product.sizes %}
+                <small>{{ product.sizes }}</small>
+            {% endif %}
+            {% if product.colors %}
+                <small>{{ product.colors|truncatechars:28 }}</small>
+            {% endif %}
+        </div>
+
         <div class="product-card-footer">
-            {% if product.price %}<strong>{{ product.price }} {{ product.currency }}</strong>{% else %}<strong>Цена по запросу</strong>{% endif %}
-            <span>Подробнее →</span>
+            <div class="price-stack">
+                {% if product.price %}
+                    <strong>{{ product.price }} {{ product.currency }}</strong>
+                {% else %}
+                    <strong>Цена по запросу</strong>
+                {% endif %}
+
+                {% if product.old_price %}
+                    <span>{{ product.old_price }} {{ product.currency }}</span>
+                {% endif %}
+            </div>
+
+            <a class="product-more-btn" href="{{ product.get_absolute_url }}">
+                Подробнее
+            </a>
         </div>
     </div>
-</a>
+</article>

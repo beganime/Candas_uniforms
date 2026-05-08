@@ -20,6 +20,10 @@ def upload_to_pages(instance, filename):
     return f'pages/{instance.key}/{filename}'
 
 
+def upload_to_home(instance, filename):
+    return f'home/{filename}'
+
+
 def upload_to_categories(instance, filename):
     return f'categories/{filename}'
 
@@ -117,6 +121,7 @@ class Category(models.Model):
     description = models.TextField('Описание', blank=True)
     image = models.ImageField('Изображение', upload_to=upload_to_categories, blank=True, null=True)
     is_active = models.BooleanField('Показывать на сайте', default=True)
+    show_on_home = models.BooleanField('Показывать на главной', default=True)
     sort_order = models.PositiveIntegerField('Порядок', default=100)
 
     class Meta:
@@ -152,17 +157,22 @@ class Product(models.Model):
     colors = models.CharField('Цвета', max_length=180, blank=True)
     material = models.CharField('Материал', max_length=180, blank=True)
     care = models.CharField('Уход', max_length=220, blank=True)
+    badge_text = models.CharField('Бейдж на карточке', max_length=80, blank=True, help_text='Например: НОВИНКА, ХИТ, 50%')
+    is_new = models.BooleanField('Новинка', default=False)
+    is_best_price = models.BooleanField('Хорошая цена', default=False)
+    is_bestseller = models.BooleanField('Хит продаж', default=False)
     main_image = models.ImageField('Главное фото', upload_to=upload_to_products, blank=True, null=True)
     qr_code = models.ImageField('QR-код товара', upload_to=upload_to_qr, blank=True, null=True, editable=False)
     is_active = models.BooleanField('Показывать на сайте', default=True)
     is_featured = models.BooleanField('Показывать на главной', default=False)
+    home_sort_order = models.PositiveIntegerField('Порядок на главной', default=100)
     created_at = models.DateTimeField('Создан', auto_now_add=True)
     updated_at = models.DateTimeField('Обновлён', auto_now=True)
 
     class Meta:
         verbose_name = 'Товар'
         verbose_name_plural = 'Товары'
-        ordering = ['-is_featured', '-created_at']
+        ordering = ['home_sort_order', '-is_featured', '-created_at']
 
     def __str__(self):
         return self.title
@@ -179,6 +189,30 @@ class Product(models.Model):
         except Exception:
             pass
         return f'{domain}{self.get_absolute_url()}'
+
+    @property
+    def discount_percent(self) -> int | None:
+        if not self.price or not self.old_price or self.old_price <= self.price:
+            return None
+        try:
+            return int(round((1 - float(self.price) / float(self.old_price)) * 100))
+        except (TypeError, ValueError, ZeroDivisionError):
+            return None
+
+    @property
+    def card_badge(self) -> str:
+        if self.badge_text:
+            return self.badge_text
+        discount = self.discount_percent
+        if discount:
+            return f'-{discount}%'
+        if self.is_new:
+            return 'НОВИНКА'
+        if self.is_bestseller:
+            return 'ХИТ'
+        if self.category:
+            return self.category.title
+        return ''
 
     def _build_qr(self):
         qr_img = qrcode.make(self.get_full_url())
@@ -216,6 +250,121 @@ class ProductImage(models.Model):
         super().save(*args, **kwargs)
         if self.image and hasattr(self.image, 'path'):
             optimize_image_path(self.image.path)
+
+
+class HomeBanner(models.Model):
+    title = models.CharField('Заголовок баннера', max_length=180)
+    subtitle = models.CharField('Подзаголовок', max_length=260, blank=True)
+    badge = models.CharField('Маленькая надпись сверху', max_length=120, blank=True)
+    image = models.ImageField('Фото баннера', upload_to=upload_to_home, blank=True, null=True)
+    button_text = models.CharField('Текст основной кнопки', max_length=80, default='Смотреть каталог')
+    button_url = models.CharField('Ссылка основной кнопки', max_length=220, default='/catalog/')
+    second_button_text = models.CharField('Текст второй кнопки', max_length=80, blank=True)
+    second_button_url = models.CharField('Ссылка второй кнопки', max_length=220, blank=True)
+    is_active = models.BooleanField('Показывать', default=True)
+    sort_order = models.PositiveIntegerField('Порядок', default=100)
+    updated_at = models.DateTimeField('Обновлено', auto_now=True)
+
+    class Meta:
+        verbose_name = 'Баннер главной'
+        verbose_name_plural = 'Баннеры главной'
+        ordering = ['sort_order', 'id']
+
+    def __str__(self):
+        return self.title
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        if self.image and hasattr(self.image, 'path'):
+            optimize_image_path(self.image.path)
+
+
+class HomeStat(models.Model):
+    value = models.CharField('Число / значение', max_length=40)
+    label = models.CharField('Подпись', max_length=120)
+    is_active = models.BooleanField('Показывать', default=True)
+    sort_order = models.PositiveIntegerField('Порядок', default=100)
+
+    class Meta:
+        verbose_name = 'Цифра на главной'
+        verbose_name_plural = 'Цифры на главной'
+        ordering = ['sort_order', 'id']
+
+    def __str__(self):
+        return f'{self.value} — {self.label}'
+
+
+class PromoBlock(models.Model):
+    title = models.CharField('Заголовок акции', max_length=140)
+    subtitle = models.CharField('Подпись', max_length=180, blank=True)
+    accent_text = models.CharField('Крупный акцент', max_length=40, blank=True, help_text='Например: 50%, NEW, SALE')
+    image = models.ImageField('Фото / фон акции', upload_to=upload_to_home, blank=True, null=True)
+    link_text = models.CharField('Текст кнопки', max_length=80, default='Смотреть')
+    link_url = models.CharField('Ссылка', max_length=220, default='/catalog/')
+    is_active = models.BooleanField('Показывать', default=True)
+    sort_order = models.PositiveIntegerField('Порядок', default=100)
+
+    class Meta:
+        verbose_name = 'Промо-блок главной'
+        verbose_name_plural = 'Промо-блоки главной'
+        ordering = ['sort_order', 'id']
+
+    def __str__(self):
+        return self.title
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        if self.image and hasattr(self.image, 'path'):
+            optimize_image_path(self.image.path)
+
+
+class HomeProductSection(models.Model):
+    FEATURED = 'featured'
+    NEW = 'new'
+    BEST_PRICE = 'best_price'
+    BESTSELLER = 'bestseller'
+    CATEGORY = 'category'
+    MANUAL = 'manual'
+    SOURCE_CHOICES = [
+        (FEATURED, 'Товары с галочкой “Показывать на главной”'),
+        (NEW, 'Новинки'),
+        (BEST_PRICE, 'Хорошая цена'),
+        (BESTSELLER, 'Хиты продаж'),
+        (CATEGORY, 'Из выбранной категории'),
+        (MANUAL, 'Выбранные вручную ниже'),
+    ]
+
+    title = models.CharField('Название секции', max_length=140)
+    subtitle = models.CharField('Подзаголовок', max_length=220, blank=True)
+    badge = models.CharField('Маленькая надпись', max_length=80, blank=True)
+    source = models.CharField('Какие товары показывать', max_length=30, choices=SOURCE_CHOICES, default=FEATURED)
+    category = models.ForeignKey(Category, verbose_name='Категория для секции', on_delete=models.SET_NULL, null=True, blank=True)
+    products = models.ManyToManyField(Product, verbose_name='Товары вручную', blank=True, related_name='home_sections')
+    limit = models.PositiveIntegerField('Сколько товаров показать', default=8)
+    is_active = models.BooleanField('Показывать секцию', default=True)
+    sort_order = models.PositiveIntegerField('Порядок', default=100)
+
+    class Meta:
+        verbose_name = 'Секция товаров на главной'
+        verbose_name_plural = 'Секции товаров на главной'
+        ordering = ['sort_order', 'id']
+
+    def __str__(self):
+        return self.title
+
+    def get_products(self):
+        base = Product.objects.filter(is_active=True).select_related('category')
+        if self.source == self.MANUAL:
+            return self.products.filter(is_active=True).select_related('category')[: self.limit]
+        if self.source == self.NEW:
+            return base.filter(is_new=True)[: self.limit]
+        if self.source == self.BEST_PRICE:
+            return base.filter(is_best_price=True)[: self.limit]
+        if self.source == self.BESTSELLER:
+            return base.filter(is_bestseller=True)[: self.limit]
+        if self.source == self.CATEGORY and self.category:
+            return base.filter(category=self.category)[: self.limit]
+        return base.filter(is_featured=True)[: self.limit]
 
 
 class ContactRequest(models.Model):
