@@ -1,30 +1,7 @@
 server {
     listen 80;
     server_name medisinskayaodezhda.ru www.medisinskayaodezhda.ru;
-
-    location /.well-known/acme-challenge/ {
-        root /var/www/certbot;
-        try_files $uri =404;
-    }
-
-    location / {
-        return 301 https://$host$request_uri;
-    }
-}
-
-server {
-    listen 443 ssl;
-    http2 on;
-    server_name medisinskayaodezhda.ru www.medisinskayaodezhda.ru;
-
     client_max_body_size 20M;
-
-    ssl_certificate /etc/letsencrypt/live/medisinskayaodezhda.ru/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/medisinskayaodezhda.ru/privkey.pem;
-
-    ssl_protocols TLSv1.2 TLSv1.3;
-    ssl_session_cache shared:SSL:10m;
-    ssl_session_timeout 1d;
 
     gzip on;
     gzip_types text/plain text/css application/javascript application/json image/svg+xml;
@@ -33,7 +10,7 @@ server {
         alias /app/staticfiles/;
         expires 30d;
         add_header Cache-Control "public, max-age=2592000, immutable";
-        access_log off;
+ma        access_log off;
     }
 
     location /media/ {
@@ -48,6 +25,6 @@ server {
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto https;
+        proxy_set_header X-Forwarded-Proto $scheme;
     }
 }
