@@ -66,13 +66,6 @@ class HomeBannerAdmin(ImagePreviewMixin, ModelAdmin):
     )
 
 
-@admin.register(HomeStat)
-class HomeStatAdmin(ModelAdmin):
-    list_display = ['value', 'label', 'is_active', 'sort_order']
-    list_editable = ['is_active', 'sort_order']
-    search_fields = ['value', 'label']
-
-
 @admin.register(PromoBlock)
 class PromoBlockAdmin(ImagePreviewMixin, ModelAdmin):
     list_display = ['title', 'accent_text', 'link_text', 'is_active', 'sort_order', 'image_preview']
@@ -83,6 +76,13 @@ class PromoBlockAdmin(ImagePreviewMixin, ModelAdmin):
         ('Фото и ссылка', {'fields': ('image', 'link_text', 'link_url')}),
         ('Показ', {'fields': ('is_active', 'sort_order')}),
     )
+
+
+@admin.register(HomeStat)
+class HomeStatAdmin(ModelAdmin):
+    list_display = ['value', 'label', 'is_active', 'sort_order']
+    list_editable = ['is_active', 'sort_order']
+    search_fields = ['value', 'label']
 
 
 @admin.register(Category)
@@ -97,6 +97,20 @@ class ProductImageInline(TabularInline):
     model = ProductImage
     extra = 1
     fields = ['image', 'alt', 'sort_order']
+
+
+@admin.register(HomeProductSection)
+class HomeProductSectionAdmin(ModelAdmin):
+    list_display = ['title', 'source', 'category', 'limit', 'is_active', 'sort_order']
+    list_editable = ['is_active', 'sort_order', 'limit']
+    list_filter = ['source', 'is_active', 'category']
+    search_fields = ['title', 'subtitle', 'badge']
+    filter_horizontal = ['products']
+    fieldsets = (
+        ('Заголовок секции', {'fields': ('badge', 'title', 'subtitle')}),
+        ('Товары', {'fields': ('source', 'category', 'products', 'limit')}),
+        ('Показ', {'fields': ('is_active', 'sort_order')}),
+    )
 
 
 @admin.register(Product)
@@ -138,20 +152,6 @@ class ProductAdmin(ImagePreviewMixin, ModelAdmin):
         if obj and obj.qr_code:
             return format_html('<img src="{}" style="width:130px;height:130px;object-fit:contain;" />', obj.qr_code.url)
         return 'QR-код появится после сохранения товара.'
-
-
-@admin.register(HomeProductSection)
-class HomeProductSectionAdmin(ModelAdmin):
-    list_display = ['title', 'source', 'category', 'limit', 'is_active', 'sort_order']
-    list_editable = ['is_active', 'sort_order', 'limit']
-    list_filter = ['source', 'is_active', 'category']
-    search_fields = ['title', 'subtitle', 'badge']
-    filter_horizontal = ['products']
-    fieldsets = (
-        ('Заголовок секции', {'fields': ('badge', 'title', 'subtitle')}),
-        ('Товары', {'fields': ('source', 'category', 'products', 'limit')}),
-        ('Показ', {'fields': ('is_active', 'sort_order')}),
-    )
 
 
 @admin.register(ContactRequest)

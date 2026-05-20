@@ -2,201 +2,124 @@
 {% block title %}Каталог — {{ site_settings.site_name }}{% endblock %}
 
 {% block content %}
-<section class="catalog-hero-section">
-    <div class="container">
-        <div class="catalog-slider" data-hero-slider>
-            <div class="catalog-slider-track" data-hero-track>
-                {% for banner in banners %}
-                    <div class="catalog-slide hero-slide {% if forloop.first %}active{% endif %}">
-                        {% if banner.image %}
-                            <img class="catalog-slide-bg" src="{{ banner.image.url }}" alt="{{ banner.title }}" loading="{% if forloop.first %}eager{% else %}lazy{% endif %}" decoding="async">
-                        {% endif %}
+<section class="section catalog-hero-section">
+    <div class="container catalog-hero-grid">
+        <div class="catalog-hero-copy">
+            <span class="eyebrow">
+                {% if selected_category_obj %}
+                    {{ selected_category_obj.title }}
+                {% else %}
+                    Премиальный каталог
+                {% endif %}
+            </span>
 
-                        <div class="catalog-slide-overlay"></div>
+            <h1>
+                {% if selected_category_obj %}
+                    {{ selected_category_obj.title }}
+                {% elif catalog_page %}
+                    {{ catalog_page.title }}
+                {% else %}
+                    Каталог медицинской одежды
+                {% endif %}
+            </h1>
 
-                        <div class="catalog-slide-content">
-                            <span class="eyebrow catalog-eyebrow">
-                                {% if banner.badge %}
-                                    {{ banner.badge }}
-                                {% else %}
-                                    Каталог товаров
-                                {% endif %}
-                            </span>
+            <p>
+                {% if selected_category_obj and selected_category_obj.description %}
+                    {{ selected_category_obj.description }}
+                {% elif catalog_page and catalog_page.subtitle %}
+                    {{ catalog_page.subtitle }}
+                {% else %}
+                    Подберите униформу по категории, артикулу, цвету или размеру. Карточки и изображения управляются из админ-панели.
+                {% endif %}
+            </p>
 
-                            <h1>
-                                {% if selected_category_obj %}
-                                    {{ selected_category_obj.title }}
-                                {% else %}
-                                    {{ banner.title }}
-                                {% endif %}
-                            </h1>
+            <form class="catalog-hero-search" action="{% url 'catalog:catalog' %}" method="get">
+                {% if selected_category %}
+                    <input type="hidden" name="category" value="{{ selected_category }}">
+                {% endif %}
 
-                            <p>
-                                {% if selected_category_obj and selected_category_obj.description %}
-                                    {{ selected_category_obj.description }}
-                                {% elif banner.subtitle %}
-                                    {{ banner.subtitle }}
-                                {% else %}
-                                    Медицинская одежда, халаты, костюмы, хирургическая форма и аксессуары для клиник, салонов и специалистов.
-                                {% endif %}
-                            </p>
+                <input name="q" value="{{ query }}" placeholder="Артикул, название, размер, цвет">
 
-                            <form class="catalog-hero-search" action="{% url 'catalog:catalog' %}" method="get">
-                                {% if selected_category %}
-                                    <input type="hidden" name="category" value="{{ selected_category }}">
-                                {% endif %}
+                <select name="sort" aria-label="Сортировка">
+                    <option value="" {% if not sort %}selected{% endif %}>По умолчанию</option>
+                    <option value="new" {% if sort == 'new' %}selected{% endif %}>Сначала новинки</option>
+                    <option value="price_asc" {% if sort == 'price_asc' %}selected{% endif %}>Цена ↑</option>
+                    <option value="price_desc" {% if sort == 'price_desc' %}selected{% endif %}>Цена ↓</option>
+                </select>
 
-                                <input name="q" value="{{ query }}" placeholder="Поиск: костюм, халат, цвет, размер, артикул...">
+                <button class="btn primary" type="submit">Найти</button>
+            </form>
 
-                                <select name="sort">
-                                    <option value="" {% if not sort %}selected{% endif %}>По умолчанию</option>
-                                    <option value="new" {% if sort == 'new' %}selected{% endif %}>Сначала новинки</option>
-                                    <option value="price_asc" {% if sort == 'price_asc' %}selected{% endif %}>Цена ↑</option>
-                                    <option value="price_desc" {% if sort == 'price_desc' %}selected{% endif %}>Цена ↓</option>
-                                </select>
-
-                                <button class="btn primary" type="submit">Найти</button>
-                            </form>
-
-                            <div class="catalog-hero-info">
-                                <div>
-                                    <strong>{{ page_obj.paginator.count }}</strong>
-                                    <span>товаров найдено</span>
-                                </div>
-
-                                {% for stat in stats|slice:":3" %}
-                                    <div>
-                                        <strong>{{ stat.value }}</strong>
-                                        <span>{{ stat.label }}</span>
-                                    </div>
-                                {% empty %}
-                                    <div>
-                                        <strong>QR</strong>
-                                        <span>код у товара</span>
-                                    </div>
-                                    <div>
-                                        <strong>24/7</strong>
-                                        <span>заявки онлайн</span>
-                                    </div>
-                                    <div>
-                                        <strong>NEW</strong>
-                                        <span>новые коллекции</span>
-                                    </div>
-                                {% endfor %}
-                            </div>
-                        </div>
+            <div class="catalog-metrics">
+                {% for stat in stats|slice:":3" %}
+                    <div>
+                        <strong>{{ stat.value }}</strong>
+                        <span>{{ stat.label }}</span>
                     </div>
                 {% empty %}
-                    <div class="catalog-slide hero-slide active">
-                        <div class="catalog-slide-overlay"></div>
-
-                        <div class="catalog-slide-content">
-                            <span class="eyebrow catalog-eyebrow">Каталог товаров</span>
-
-                            <h1>
-                                {% if selected_category_obj %}
-                                    {{ selected_category_obj.title }}
-                                {% else %}
-                                    Медицинская одежда
-                                {% endif %}
-                            </h1>
-
-                            <p>
-                                {% if selected_category_obj and selected_category_obj.description %}
-                                    {{ selected_category_obj.description }}
-                                {% else %}
-                                    Выберите категорию, отсортируйте товары и оставьте заявку прямо со страницы товара.
-                                {% endif %}
-                            </p>
-
-                            <form class="catalog-hero-search" action="{% url 'catalog:catalog' %}" method="get">
-                                {% if selected_category %}
-                                    <input type="hidden" name="category" value="{{ selected_category }}">
-                                {% endif %}
-
-                                <input name="q" value="{{ query }}" placeholder="Поиск: костюм, халат, цвет, размер, артикул...">
-
-                                <select name="sort">
-                                    <option value="" {% if not sort %}selected{% endif %}>По умолчанию</option>
-                                    <option value="new" {% if sort == 'new' %}selected{% endif %}>Сначала новинки</option>
-                                    <option value="price_asc" {% if sort == 'price_asc' %}selected{% endif %}>Цена ↑</option>
-                                    <option value="price_desc" {% if sort == 'price_desc' %}selected{% endif %}>Цена ↓</option>
-                                </select>
-
-                                <button class="btn primary" type="submit">Найти</button>
-                            </form>
-
-                            <div class="catalog-hero-info">
-                                <div>
-                                    <strong>{{ page_obj.paginator.count }}</strong>
-                                    <span>товаров найдено</span>
-                                </div>
-
-                                {% for stat in stats|slice:":3" %}
-                                    <div>
-                                        <strong>{{ stat.value }}</strong>
-                                        <span>{{ stat.label }}</span>
-                                    </div>
-                                {% empty %}
-                                    <div>
-                                        <strong>QR</strong>
-                                        <span>код у товара</span>
-                                    </div>
-                                    <div>
-                                        <strong>24/7</strong>
-                                        <span>заявки онлайн</span>
-                                    </div>
-                                    <div>
-                                        <strong>NEW</strong>
-                                        <span>новые коллекции</span>
-                                    </div>
-                                {% endfor %}
-                            </div>
-                        </div>
+                    <div>
+                        <strong>{{ page_obj.paginator.count }}</strong>
+                        <span>товаров в каталоге</span>
+                    </div>
+                    <div>
+                        <strong>QR</strong>
+                        <span>код у каждого товара</span>
+                    </div>
+                    <div>
+                        <strong>24/7</strong>
+                        <span>заявки через сайт</span>
                     </div>
                 {% endfor %}
             </div>
+        </div>
 
-            {% if banners|length > 1 %}
-                <button class="hero-arrow hero-arrow-prev" type="button" aria-label="Предыдущий баннер" data-hero-prev>
-                    ‹
-                </button>
-
-                <button class="hero-arrow hero-arrow-next" type="button" aria-label="Следующий баннер" data-hero-next>
-                    ›
-                </button>
-
-                <div class="hero-dots catalog-dots" data-hero-dots>
-                    {% for banner in banners %}
-                        <button class="{% if forloop.first %}active{% endif %}" type="button" aria-label="Баннер {{ forloop.counter }}" data-hero-dot="{{ forloop.counter0 }}"></button>
-                    {% endfor %}
+        <div class="catalog-hero-visual" aria-label="Изображение каталога">
+            {% if catalog_page and catalog_page.hero_image %}
+                <img src="{{ catalog_page.hero_image.url }}" alt="{{ catalog_page.title }}" loading="eager" decoding="async">
+            {% else %}
+                <div class="catalog-visual-fallback">
+                    <strong>Cadas</strong>
+                    <span>Uniforms</span>
                 </div>
             {% endif %}
+
+            <div class="glass-chip chip-top">
+                <strong>{{ page_obj.paginator.count }}</strong>
+                <span>товаров</span>
+            </div>
+            <div class="glass-chip chip-bottom">
+                <strong>Premium</strong>
+                <span>uniform design</span>
+            </div>
+            <span class="iso-detail iso-detail-one" aria-hidden="true"></span>
+            <span class="iso-detail iso-detail-two" aria-hidden="true"></span>
         </div>
     </div>
 </section>
 
 <section class="section compact catalog-products-section">
-    <div class="container filters">
-        <a class="filter-pill {% if not selected_category %}active{% endif %}" href="{% url 'catalog:catalog' %}{% if query or sort %}?{% if query %}q={{ query|urlencode }}{% endif %}{% if query and sort %}&{% endif %}{% if sort %}sort={{ sort }}{% endif %}{% endif %}">
-            Все товары
-        </a>
-
-        {% for category in categories %}
-            <a class="filter-pill {% if selected_category == category.slug %}active{% endif %}" href="?category={{ category.slug }}{% if query %}&q={{ query|urlencode }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}">
-                {{ category.title }}
+    <div class="container catalog-mobile-tools">
+        <div class="filters">
+            <a class="filter-pill {% if not selected_category %}active{% endif %}" href="{% url 'catalog:catalog' %}{% if query or sort %}?{% if query %}q={{ query|urlencode }}{% endif %}{% if query and sort %}&{% endif %}{% if sort %}sort={{ sort }}{% endif %}{% endif %}">
+                Все товары
             </a>
-        {% endfor %}
+            {% for category in categories %}
+                <a class="filter-pill {% if selected_category == category.slug %}active{% endif %}" href="?category={{ category.slug }}{% if query %}&q={{ query|urlencode }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}">
+                    {{ category.title }}
+                </a>
+            {% endfor %}
+        </div>
     </div>
 
     <div class="container catalog-layout">
-        <aside class="catalog-sidebar">
-            <h3>Категории</h3>
-
-            <a class="sidebar-link {% if not selected_category %}active{% endif %}" href="{% url 'catalog:catalog' %}">
+        <aside class="catalog-sidebar glass-panel">
+            <div class="catalog-sidebar-head">
+                <span>Категории</span>
+                <strong>{{ categories|length }}</strong>
+            </div>
+            <a class="sidebar-link {% if not selected_category %}active{% endif %}" href="{% url 'catalog:catalog' %}{% if query or sort %}?{% if query %}q={{ query|urlencode }}{% endif %}{% if query and sort %}&{% endif %}{% if sort %}sort={{ sort }}{% endif %}{% endif %}">
                 Все товары
             </a>
-
             {% for category in categories %}
                 <a class="sidebar-link {% if selected_category == category.slug %}active{% endif %}" href="?category={{ category.slug }}{% if query %}&q={{ query|urlencode }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}">
                     {{ category.title }}
@@ -205,16 +128,14 @@
         </aside>
 
         <div class="catalog-main">
-            <div class="catalog-result-bar">
+            <div class="catalog-result-bar glass-panel">
                 <div>
                     <span>Найдено товаров</span>
                     <strong>{{ page_obj.paginator.count }}</strong>
                 </div>
 
-                {% if selected_category_obj %}
-                    <a href="{% url 'catalog:catalog' %}">Сбросить категорию</a>
-                {% elif query %}
-                    <a href="{% url 'catalog:catalog' %}">Сбросить поиск</a>
+                {% if selected_category_obj or query %}
+                    <a href="{% url 'catalog:catalog' %}">Сбросить фильтры</a>
                 {% else %}
                     <a href="#top">Наверх ↑</a>
                 {% endif %}
@@ -224,7 +145,7 @@
                 {% for product in page_obj %}
                     {% include 'catalog/partials/product_card.html' with product=product %}
                 {% empty %}
-                    <div class="empty-state">
+                    <div class="empty-state glass-panel">
                         Товары не найдены. Добавьте товары через админку или измените фильтр.
                     </div>
                 {% endfor %}

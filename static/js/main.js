@@ -1,4 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
+    document.documentElement.classList.add('is-ready');
+
     const toggle = document.querySelector('[data-nav-toggle]');
     const nav = document.querySelector('[data-nav]');
 
@@ -6,6 +8,13 @@ document.addEventListener('DOMContentLoaded', () => {
         toggle.addEventListener('click', () => {
             nav.classList.toggle('open');
             toggle.classList.toggle('open');
+        });
+
+        nav.querySelectorAll('a').forEach((link) => {
+            link.addEventListener('click', () => {
+                nav.classList.remove('open');
+                toggle.classList.remove('open');
+            });
         });
     }
 
@@ -23,9 +32,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    const slider = document.querySelector('[data-hero-slider]');
+    const sliders = document.querySelectorAll('[data-hero-slider]');
 
-    if (slider) {
+    sliders.forEach((slider) => {
         const slides = Array.from(slider.querySelectorAll('.hero-slide'));
         const prevButton = slider.querySelector('[data-hero-prev]');
         const nextButton = slider.querySelector('[data-hero-next]');
@@ -96,5 +105,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
         showSlide(0);
         startAutoplay();
-    }
+    });
 });

@@ -77,6 +77,7 @@ def about(request):
 
 
 def catalog(request):
+    page = PageContent.objects.filter(key=PageContent.CATALOG).first()
     products = Product.objects.filter(is_active=True).select_related('category')
     categories = Category.objects.filter(is_active=True).order_by('sort_order', 'title')
 
@@ -91,15 +92,18 @@ def catalog(request):
         products = products.filter(category__slug=selected_category)
 
     if query:
-        products = products.filter(
-            Q(title__icontains=query)
-            | Q(short_description__icontains=query)
-            | Q(description__icontains=query)
-            | Q(sku__icontains=query)
-            | Q(colors__icontains=query)
-            | Q(sizes__icontains=query)
-            | Q(material__icontains=query)
-        )
+        # Разбиваем запрос на слова, чтобы искать точнее (например "костюм белый")
+        query_words = query.split()
+        for word in query_words:
+            products = products.filter(
+                Q(title__icontains=word)
+                | Q(sku__icontains=word)
+                | Q(short_description__icontains=word)
+                | Q(description__icontains=word)
+                | Q(colors__icontains=word)
+                | Q(sizes__icontains=word)
+                | Q(material__icontains=word)
+            )
 
     if sort == 'price_asc':
         products = products.order_by('price', 'title')
@@ -114,17 +118,16 @@ def catalog(request):
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
-    banners = HomeBanner.objects.filter(is_active=True).order_by('sort_order', 'id')[:5]
     stats = HomeStat.objects.filter(is_active=True).order_by('sort_order', 'id')[:4]
 
     return render(request, 'catalog/catalog.html', {
+        'catalog_page': page,
         'page_obj': page_obj,
         'categories': categories,
         'selected_category': selected_category,
         'selected_category_obj': selected_category_obj,
         'query': query,
         'sort': sort,
-        'banners': banners,
         'stats': stats,
     })
 

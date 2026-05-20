@@ -84,9 +84,11 @@ class SiteSettings(models.Model):
 
 class PageContent(models.Model):
     HOME = 'home'
+    CATALOG = 'catalog'
     ABOUT = 'about'
     PAGE_CHOICES = [
         (HOME, 'Главная'),
+        (CATALOG, 'Каталог'),
         (ABOUT, 'О компании'),
     ]
 
