@@ -1,7 +1,9 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block title %}Каталог — {{ site_settings.site_name }}{% endblock %}
 
 {% block content %}
+<link rel="stylesheet" href="{% static 'css/modern-upgrade.css' %}">
 <section class="section catalog-hero-section">
     <div class="container catalog-hero-grid">
         <div class="catalog-hero-copy">
@@ -97,6 +99,22 @@
     </div>
 </section>
 
+<section class="section compact">
+    <div class="container catalog-poster">
+        <div class="catalog-poster-grid">
+            <div>
+                <span class="eyebrow">Специальное предложение</span>
+                <h2>Сезонное обновление формы для клиник и салонов</h2>
+                <p>Используйте этот плакатный блок для скидки, события, новой коллекции или срочного объявления. Рекомендуемый размер баннера для каталога: 1920×720 px, WebP/JPG до 450 КБ.</p>
+            </div>
+            <div class="poster-discount">
+                <strong>-20%</strong>
+                <span>на подбор комплекта</span>
+            </div>
+        </div>
+    </div>
+</section>
+
 <section class="section compact catalog-products-section">
     <div class="container catalog-mobile-tools">
         <div class="filters">
@@ -171,4 +189,5 @@
         </div>
     {% endif %}
 </section>
+<script src="{% static 'js/modern-upgrade.js' %}" defer></script>
 {% endblock %}
